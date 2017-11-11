@@ -1,0 +1,11 @@
+name: hntaxicab
+title: hntaxicab
+account: yuen26
+server: shinyapps.io
+appId: 191346
+bundleId: 965988
+url: https://yuen26.shinyapps.io/hntaxicab/
+when: 1504488945.61077
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: driver.R|share.R
