@@ -11,10 +11,9 @@ getDeg <- function(rad) {
 
 #=============== VECTOR FUNCTIONS ===============
 
-getVector <- function(point) {
-  #point = c(lat, lng)
-  lat <- getRad(point[1])
-  lng <- getRad(point[2])
+get3DVector <- function(lat, lng) {
+  lat <- getRad(lat)
+  lng <- getRad(lng)
   vector <- c()
   vector[1] <- EARTH_RADIUS * cos(lat) * cos(lng)
   vector[2] <- EARTH_RADIUS * cos(lat) * sin(lng)
@@ -23,6 +22,9 @@ getVector <- function(point) {
 }
 
 computeAngle <- function(vector1, vector2) {
+  if (vector1[1] == vector2[1] && vector1[2] == vector2[2] && vector1[3] == vector2[3]) {
+    return(0)
+  }
   # theta is radian
   theta <- acos(sum(vector1 * vector2) / (sqrt(sum(vector1 * vector1)) * sqrt(sum(vector2 * vector2))))
   return(theta)
@@ -49,10 +51,10 @@ measureDistanceFromPointToLine <- function(start, end, point) {
 }
 
 measurePerpendicularDistance <- function(si, ei, sj, ej) {
-  iLength <- measureEuclidDistance(si, ei)
-  jLength <- measureEuclidDistance(sj, ej)
+  leni <- measureEuclidDistance(si, ei)
+  lenj <- measureEuclidDistance(sj, ej)
   
-  if (iLength < jLength) {
+  if (leni < lenj) {
     l1 <- measureDistanceFromPointToLine(sj, ej, si)
     l2 <- measureDistanceFromPointToLine(sj, ej, ei)
   } else {
@@ -68,10 +70,10 @@ measurePerpendicularDistance <- function(si, ei, sj, ej) {
 }
 
 measureParallelDistance <- function(si, ei, sj, ej) {
-  iLength <- measureEuclidDistance(si, ei)
-  jLength <- measureEuclidDistance(sj, ej)
+  leni <- measureEuclidDistance(si, ei)
+  lenj <- measureEuclidDistance(sj, ej)
   
-  if (iLength < jLength) {
+  if (leni < lenj) {
     projection1 <- getProjectionOfPointToLine(sj, ej, si)
     projection2 <- getProjectionOfPointToLine(sj, ej, ei)
     return(min(measureEuclidDistance(projection1, sj), measureEuclidDistance(projection1, ej), 
@@ -85,15 +87,19 @@ measureParallelDistance <- function(si, ei, sj, ej) {
 }
 
 measureAngleDistance <- function(si, ei, sj, ej) {
-  iLength <- measureEuclidDistance(si, ei)
-  jLength <- measureEuclidDistance(sj, ej)
+  leni <- measureEuclidDistance(si, ei)
+  lenj <- measureEuclidDistance(sj, ej)
   
-  if (iLength < jLength) {
-    shortLength <- iLength 
+  if (leni == 0 || lenj == 0) {
+    return(0)
+  }
+  
+  if (leni < lenj) {
+    shortLength <- leni 
     vector1 <- ej - sj
     vector2 <- ei - si
   } else {
-    shortLength <- jLength
+    shortLength <- lenj
     vector1 <- ei - si
     vector2 <- ej - sj
   }
@@ -103,10 +109,10 @@ measureAngleDistance <- function(si, ei, sj, ej) {
 }
 
 measureDistanceBetweenLineSegments <- function(lsi, lsj) {
-  si <- getVector(c(lsi$start.lat, lsi$start.lng))
-  ei <- getVector(c(lsi$end.lat, lsi$end.lng))
-  sj <- getVector(c(lsj$start.lat, lsj$start.lng))
-  ej <- getVector(c(lsj$end.lat, lsj$end.lng))
+  si <- lsi[1:3]
+  ei <- lsi[4:6]
+  sj <- lsj[1:3]
+  ej <- lsj[4:6]
   return(measurePerpendicularDistance(si, ei, sj, ej) 
   + measureParallelDistance(si, ei, sj, ej) 
   + measureAngleDistance(si, ei, sj, ej))

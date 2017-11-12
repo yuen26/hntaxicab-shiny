@@ -1,32 +1,21 @@
-source("traclus/input.R")
-source("common/distance.R")
-
 # ===================== MDL functions ======================
 descriptionCost <- function(trajectory, startIndex, endIndex) {
-  startSegment <- trajectory[startIndex,]
-  endSegment <- trajectory[endIndex,]
-  
+  startSegment <- trajectory[[startIndex]]
+  endSegment <- trajectory[[endIndex]]
   distance <- measureEuclidDistance(startSegment, endSegment)
   if (distance < 1) {
     distance <- 1
   }
-  
-  log2(distance)
+  return(log2(distance))
 }
 
 encodingCost <- function(trajectory, startIndex, endIndex) {
-  startComponent <- trajectory[startIndex,]
-  endComponent <- trajectory[endIndex,]
-  
-  if (startComponent$lat == endComponent$lat && startComponent$lng == endComponent$lng) {
-    return(0)
-  }
-  
+  startComponent <- trajectory[[startIndex]]
+  endComponent <- trajectory[[endIndex]]
   sum <- 0
   for (i in startIndex:(endIndex - 1)) {
-    startSegment <- trajectory[i,]
-    endSegment <- trajectory[i + 1,]
-    
+    startSegment <- trajectory[[i]]
+    endSegment <- trajectory[[i + 1]]
     perpendicularDistance <- measurePerpendicularDistance(startComponent, endComponent, startSegment, endSegment)
     angleDistance <- measureAngleDistance(startComponent, endComponent, startSegment, endSegment)
     if (perpendicularDistance < 1) {
@@ -35,10 +24,9 @@ encodingCost <- function(trajectory, startIndex, endIndex) {
     if (angleDistance < 1) {
       angleDistance <- 1
     }   
-    
     sum <- sum + log2(perpendicularDistance) + log2(angleDistance)
   }
-  sum
+  return(sum)
 }
 
 MDLPar <- function(trajectory, startIndex, endIndex) {
@@ -52,19 +40,20 @@ MDLNoPar <- function(trajectory, startIndex, endIndex) {
 # =========== Approximate Trajectory Partitioning ============
 partitioning <- function(trajectory) {
   # characteristic points
-  cp <- trajectory[1,]
+  cp <- list()
+  cp <- c(cp, list(trajectory[[1]]))
   
   startIndex <- 1
   length <- 1
   
-  while (startIndex + length <= nrow(trajectory)) {
+  while (startIndex + length <= length(trajectory)) {
     currIndex <- startIndex + length
     costPar <- MDLPar(trajectory, startIndex, currIndex)
     costNoPar <- MDLNoPar(trajectory, startIndex, currIndex)
     # check if partitioning at the current point makesthe MDL cost larger than not partitioning
     if (costPar > costNoPar) {
       # partition at the previous point
-      cp <- rbind(cp, trajectory[currIndex - 1,])
+      cp <- c(cp, list(trajectory[[currIndex - 1]]))
       startIndex <- currIndex - 1
       length <- 1
     } else {
@@ -72,16 +61,28 @@ partitioning <- function(trajectory) {
     }
   }
   
-  cp <- rbind(cp, trajectory[nrow(trajectory),])
+  cp <- c(cp, list(trajectory[[length(trajectory)]]))
   
-  # Remove stop point
-  cp <- removeStop(cp)
+  # Remove stop points
+  flags <- rep(1, length(cp))
+  for (i in 1:(length(cp) - 1)) {
+    if (flags[i] == 1) {
+      if (cp[[i]][1] == cp[[i + 1]][1] && cp[[i]][2] == cp[[i + 1]][2]) {
+        flags[i] <- 0
+      }
+    }
+  }
+  newCp <- list()
+  for (i in 1:(length(flags))) {
+    if (flags[i] == 1) {
+      newCp <- c(newCp, list(cp[[i]]))
+    }
+  }
   
   # Build line segments
-  lineSegments <- data.frame(start = list(), end = list())
-  for (i in 1:(nrow(cp) - 1)) {
-    lineSegment <- data.frame(start = cp[i,], end = cp[i + 1,])
-    lineSegments <- rbind(lineSegments, lineSegment)
+  lineSegments <- list()
+  for (i in 1:(length(newCp) - 1)) {
+    lineSegments[[i]] <- c(newCp[[i]], newCp[[i + 1]])
   }
-  lineSegments
+  return(lineSegments)
 }

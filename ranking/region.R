@@ -1,5 +1,3 @@
-source("common/distance.R")
-
 # Length of region edge is 1 km
 REGION_EDGE <- 1
 
@@ -21,6 +19,29 @@ regions <- data.frame(
   west = numeric()
 )
 id <- 0
+
+# Earth radius (meter)
+EARTH_RADIUS <- 6371 * 1000
+
+getRad <- function(deg) {
+  return(deg * pi / 180)
+}
+
+getDeg <- function(rad) {
+  return(rad * 180 / pi)
+}
+
+getDestination <- function(source, bearing, distance) {
+  distance <- distance / EARTH_RADIUS
+  bearing <- getRad(bearing)
+  
+  lat1 <- getRad(source$lat)
+  lng1 <- getRad(source$lng)
+  
+  lat2 <- asin(sin(lat1) * cos(distance) + cos(lat1) * sin(distance) * cos(bearing))
+  lng2 <- lng1 + atan2(sin(bearing) * sin(distance) * cos(lat1), cos(distance) - sin(lat1) * sin(lat2))
+  list(lat = getDeg(lat2), lng = getDeg(lng2))
+}
 
 # Draw a region
 drawRegion <- function(centerPoint) {

@@ -11,7 +11,7 @@ source("traclus/input.R")
 #testUser <- "5951c4bfda3e65689ab864ab"
 #testLabel <- "00:00:00 - 07:30:00"
 #writeTrajectories(testUser, testLabel)
-trajectories <- readTrajectories()
+tracks <- fread("data/traclus.csv")
 
 source("traclus/main.R")
-executeTraclus(trajectories)
+executeTraclus(tracks)
