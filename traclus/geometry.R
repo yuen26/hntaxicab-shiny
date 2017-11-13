@@ -1,3 +1,5 @@
+options(digits = 15)
+
 # Earth radius (meter)
 EARTH_RADIUS <- 6371 * 1000
 

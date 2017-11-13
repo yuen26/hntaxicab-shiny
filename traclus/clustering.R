@@ -34,21 +34,21 @@ getNeighborhoods <- function(i, epsilon) {
 }
 
 estimateParameters <- function(lineSegments) {
+  options(digits = 15)
   minEntropy <- 9999
   minEpsilon <- 9999
   minTotalSize <- 9999
   
   for (epsilon in 20:40) {
-    totalNeighborhoods <- c()
-    totalSize <- 0
+    sizes <- c()
     for (i in 1:length(lineSegments)) {
       neighborhoods <- getNeighborhoods(i, epsilon)
-      totalNeighborhoods <- c(totalNeighborhoods, neighborhoods)
-      totalSize <- totalSize + length(neighborhoods)
+      sizes <- c(sizes, length(neighborhoods))
     }
     entropy <- 0
-    for (i in 1:length(totalNeighborhoods)) {
-      probability <- length(totalNeighborhoods[i]) / totalSize
+    totalSize <- sum(sizes)
+    for (i in 1:length(sizes)) {
+      probability <- sizes[i] / totalSize
       entropy <- entropy + probability * log2(probability)
     }
     entropy <- -1 * entropy
@@ -142,5 +142,32 @@ generateCluster <- function(lineSegments) {
     } 
   }
   
-  return(clusters)
+  print(clusters)
+  
+  # Generate representative trajectory
+  # for (i in 1:length(clusters)) {
+  #   generateRepresentativeTrajectory(lineSegments, clusters[[i]])
+  # }
+  generateRepresentativeTrajectory(lineSegments, clusters[[1]])
+}
+
+generateRepresentativeTrajectory <- function(lineSegments, cluster) {
+  # Cluster is a list of linesegments
+  ls <- list()
+  for (i in 1:length(cluster)) {
+    ls[[i]] <- lineSegments[[cluster[i]]]
+  }
+  
+  # Find average direction vector
+  sum <- c(0, 0, 0)
+  for (i in 1:length(cluster)) {
+    start <- lineSegments[[i]][1:3]
+    end <- lineSegments[[i]][4:6]
+    sum <- sum + (end - start)
+  }
+  avg <- sum / length(cluster)
+  
+  # Find theta berween average direction vector and X axis
+  theta <- computeAngle(avg, c(1, 0, 0))
+  print(getDeg(theta))
 }
