@@ -39,6 +39,16 @@ getProjectionOfPointToLine <- function(start, end, point) {
   return(start + coefficient * vector2)
 }
 
+rotateVector <- function(vector, angle) {
+  rotationMatrix <- matrix(c(1, 0, 0, 0, cos(angle), -1 * sin(angle), 0, sin(angle), cos(angle)), ncol = 3)
+  return(rotationMatrix %*% vector)
+}
+
+rotateLineSegment <- function(lineSegment, angle) {
+  lineSegmentMatrix <- matrix(lineSegment, nrow = 3) 
+  rotationMatrix <- matrix(c(1, 0, 0, 0, cos(angle), -1 * sin(angle), 0, sin(angle), cos(angle)), ncol = 3)
+  return(rotationMatrix %*% lineSegmentMatrix)
+}
 
 #=============== DISTANCE FUNCTIONS ===============
 
@@ -118,4 +128,15 @@ measureDistanceBetweenLineSegments <- function(lsi, lsj) {
   return(measurePerpendicularDistance(si, ei, sj, ej) 
   + measureParallelDistance(si, ei, sj, ej) 
   + measureAngleDistance(si, ei, sj, ej))
+}
+
+findIntersectionBetweenPlaneAndLineSegment <- function(rootPoint, planeNormal, startPoint, endPoint) {
+  d <- measureEuclidDistance(rootPoint, startPoint)
+  u <- startPoint - endPoint
+  t <- -1 * d / sum(u * planeNormal)
+  if (0 <= t && t <= 1) {
+    return(startPoint + t * u)
+  } else {
+    return(NULL)
+  }
 }

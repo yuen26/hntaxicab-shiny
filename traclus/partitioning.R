@@ -41,7 +41,7 @@ MDLNoPar <- function(trajectory, startIndex, endIndex) {
 partitioning <- function(trajectory) {
   # characteristic points
   cp <- list()
-  cp <- c(cp, list(trajectory[[1]]))
+  cp[[1]] <- trajectory[[1]]
   
   startIndex <- 1
   length <- 1
@@ -53,7 +53,7 @@ partitioning <- function(trajectory) {
     # check if partitioning at the current point makesthe MDL cost larger than not partitioning
     if (costPar > costNoPar) {
       # partition at the previous point
-      cp <- c(cp, list(trajectory[[currIndex - 1]]))
+      cp[[length(cp) + 1]] <- trajectory[[currIndex - 1]]
       startIndex <- currIndex - 1
       length <- 1
     } else {
@@ -61,7 +61,7 @@ partitioning <- function(trajectory) {
     }
   }
   
-  cp <- c(cp, list(trajectory[[length(trajectory)]]))
+  cp[[length(cp) + 1]] <- trajectory[[length(trajectory)]]
   
   # Remove stop points
   flags <- rep(1, length(cp))
@@ -75,7 +75,7 @@ partitioning <- function(trajectory) {
   newCp <- list()
   for (i in 1:(length(flags))) {
     if (flags[i] == 1) {
-      newCp <- c(newCp, list(cp[[i]]))
+      newCp[[length(newCp) + 1]] <- cp[[i]]
     }
   }
   
