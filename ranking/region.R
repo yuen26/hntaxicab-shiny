@@ -6,7 +6,7 @@ ROWS <- 10
 COLS <- 10
 
 # Center of first region of first row
-START_CENTER <- list(lat = 21.05543834, lng = 105.78671064)
+START_CENTER <- list(lat = 21.05543725, lng = 105.7674374)
 
 # Region dataframe
 regions <- data.frame(
@@ -20,8 +20,8 @@ regions <- data.frame(
 )
 id <- 0
 
-# Earth radius (meter)
-EARTH_RADIUS <- 6371 * 1000
+# Earth radius (km)
+EARTH_RADIUS <- 6371
 
 getRad <- function(deg) {
   return(deg * pi / 180)
@@ -68,14 +68,11 @@ drawRow <- function(firstRegionCenter) {
   }
 }
 
-# Calculate view point
-getViewPoint <- function(regions) {
-  point <- list(lat = regions[45,]$centerLat, lng = regions[45,]$centerLng)
-  getDestination(point, 135, sqrt(REGION_EDGE / 2 * REGION_EDGE / 2 * 2))
-}
-
 # Draw map
 drawMap <- function() {
+  regions <<- regions[0,]
+  id <<- 0
+  
   # Draw first row
   drawRow(START_CENTER)
   
@@ -86,4 +83,10 @@ drawMap <- function() {
   }
   
   regions
+}
+
+# Calculate view point
+getViewPoint <- function(regions) {
+  point <- list(lat = regions[45,]$centerLat, lng = regions[45,]$centerLng)
+  getDestination(point, 135, sqrt(REGION_EDGE / 2 * REGION_EDGE / 2 * 2))
 }

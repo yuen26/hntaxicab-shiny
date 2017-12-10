@@ -15,15 +15,21 @@ library(plotly)
 # Define UI for application that draws a histogram
 shinyUI(navbarPage("Hanoi taxicab datamining", 
   theme = shinytheme("superhero"), position = "fixed-top",
-  tabPanel("Traffic flow ranking", fluidPage(
+  
+  tabPanel("Traffic Flow Ranking", fluidPage(
     # Input
     fluidRow(
       style = "margin-top:50px;margin-bottom:20px",
       
       column(
         width = 2,
-        offset = 4,
+        offset = 2,
         uiOutput("timeslots")
+      ),
+      
+      column(
+        width = 2,
+        uiOutput("days")
       ),
       
       column(
@@ -37,8 +43,6 @@ shinyUI(navbarPage("Hanoi taxicab datamining",
         actionButton("submit", "Submit", class = "btn btn-primary")
       )
     ),
-    # end Input
-    
     
     # Main
     fluidRow(
@@ -47,44 +51,34 @@ shinyUI(navbarPage("Hanoi taxicab datamining",
         width = 6,
         leafletOutput("map", height = 550)
       ),
-      # end Map
       
-      # Result
+      # Table
       column(
         width = 6,
-        tabsetPanel(
-          tabPanel("View result as table", dataTableOutput("list"), style = "margin-top:20px"),
-          tabPanel("View result as chart", plotlyOutput("chart"), style = "margin-top:20px")
-        )
+        dataTableOutput("table")
       )
-      # end Result
-    ))),
-  tabPanel("Taxi behavior", fluidPage(
+    )
+  )),
+  
+  tabPanel("Taxi Behavior", fluidPage(
     # Input
     fluidRow(
       style = "margin-top:50px;margin-bottom:20px",
       
       column(
-        width = 3,
-        offset = 3,
-        uiOutput("users")
-      ),
-      
-      column(
-        width = 2,
-        uiOutput("timeslots2")
-      ),
-      
-      column(
-        width = 4,
-        style = "margin-top:20px",
-        actionButton("submit2", "Submit", class = "btn btn-primary")
+        width = 7,
+        offset = 5,
+        fileInput("file", "Choose CSV File", accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
       )
     ),
-    # end Input
     
     # Main
     fluidRow(
+      # Map
+      column(
+        width = 12,
         leafletOutput("map2", height = 600)
-    )))
+      )
+    )
+  ))
 ))

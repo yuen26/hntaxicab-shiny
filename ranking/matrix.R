@@ -14,5 +14,5 @@ buildRegionMatrix <- function(tracks) {
     }
   }
   
-  nodes  
+  return(nodes)  
 }

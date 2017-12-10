@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Google Map Partition</title>
+    
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+    <script>
+  	// Draw map
+  	function initMap() {
+      var center = {lat:21.1922071, lng:105.7801071};
+
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 20,
+        center: center,
+        mapTypeId: 'terrain'
+      });
+
+      // Origin trajectory
+      var path = [
+        {lat:21.1922071, lng:105.7801071},
+        {lat:21.1920237, lng:105.7801300},
+        {lat:21.1920420, lng:105.7801759},
+        {lat:21.1921143, lng:105.7801300},
+        {lat:21.1920318, lng:105.7801644},
+        {lat:21.1920442, lng:105.7801530},
+        {lat:21.1920398, lng:105.7801988},
+        {lat:21.1919514, lng:105.7801759},
+        {lat:21.1920676, lng:105.7803822},
+        {lat:21.1920406, lng:105.7804281},
+        {lat:21.1920734, lng:105.7800842},
+        {lat:21.1919997, lng:105.7802855},
+        {lat:21.1920960, lng:105.7800842},
+        {lat:21.1919331, lng:105.7801300},
+        {lat:21.1919997, lng:105.7802855},
+        {lat:21.1921888, lng:105.7800613},
+        {lat:21.1921538, lng:105.7804281},
+        {lat:21.1920259, lng:105.7801071},
+        {lat:21.1922684, lng:105.7801759}
+      ];
+      var taxiPath = new google.maps.Polyline({
+        path: path,
+        geodesic: true,
+        strokeColor: '#00FF00',
+        strokeOpacity: 1.0,
+        strokeWeight: 5
+      });
+      taxiPath.setMap(map);
+
+      // Cluster 1
+      var path1 = [
+    		{lat:21.1922071, lng:105.7801071},
+        {lat:21.1920237, lng:105.7801300},
+        {lat:21.1920420, lng:105.7801759},
+        {lat:21.1921143, lng:105.7801300},
+        {lat:21.1920442, lng:105.7801530},
+        {lat:21.1920398, lng:105.7801988},
+        {lat:21.1919514, lng:105.7801759},
+        {lat:21.1920676, lng:105.7803822},
+        {lat:21.1920406, lng:105.7804281},
+        {lat:21.1920734, lng:105.7800842},
+        {lat:21.1919997, lng:105.7802855},
+        {lat:21.1920960, lng:105.7800842},
+        {lat:21.1919331, lng:105.7801300},
+        {lat:21.1919997, lng:105.7802855},
+        {lat:21.1921888, lng:105.7800613},
+        {lat:21.1921538, lng:105.7804281},
+        {lat:21.1920259, lng:105.7801071},
+        {lat:21.1922684, lng:105.7801759}
+      ];
+      var taxiPath1 = new google.maps.Polyline({
+        path: path1,
+        geodesic: true,
+        strokeColor: '#FFFF00',
+        strokeOpacity: 1.0,
+        strokeWeight: 2
+      });
+      taxiPath1.setMap(map);
+  	}
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSh1UTtttLnMoLd1DOS0C3_1861E6ktz8&callback=initMap">
+    </script>
+  </body>
+</html>

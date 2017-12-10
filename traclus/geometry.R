@@ -13,13 +13,22 @@ getDeg <- function(rad) {
 
 #=============== VECTOR FUNCTIONS ===============
 
-get3DVector <- function(lat, lng) {
+getGeoVector <- function(lat, lng) {
   lat <- getRad(lat)
   lng <- getRad(lng)
   vector <- c()
   vector[1] <- EARTH_RADIUS * cos(lat) * cos(lng)
   vector[2] <- EARTH_RADIUS * cos(lat) * sin(lng)
   vector[3] <- EARTH_RADIUS * sin(lat)
+  return(vector)
+}
+
+getCartesianVector <- function(x, y, z) {
+  lat <- asin(z / EARTH_RADIUS)
+  lng <- acos(x / (EARTH_RADIUS * cos(lat)))
+  vector <- c()
+  vector[1] <- getDeg(lat)
+  vector[2] <- getDeg(lng)
   return(vector)
 }
 
@@ -131,12 +140,11 @@ measureDistanceBetweenLineSegments <- function(lsi, lsj) {
 }
 
 findIntersectionBetweenPlaneAndLineSegment <- function(rootPoint, planeNormal, startPoint, endPoint) {
-  d <- measureEuclidDistance(rootPoint, startPoint)
-  u <- startPoint - endPoint
-  t <- -1 * d / sum(u * planeNormal)
-  if (0 <= t && t <= 1) {
-    return(startPoint + t * u)
-  } else {
-    return(NULL)
-  }
+  w <- startPoint - rootPoint
+  u <- endPoint - startPoint
+  N <- -1 * sum(planeNormal * w)
+  D <- sum(planeNormal * u)
+  sI <- N / D
+  I <- startPoint + sI * u
+  return(I)
 }

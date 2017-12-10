@@ -66,7 +66,6 @@ estimateParameters <- function(lineSegments) {
 generateCluster <- function(lineSegments) {
   # Build distance matrix
   buildDistanceMatrix(lineSegments)
-  print(distanceMatrix)
   
   # Estimate parameters
   parameters <- estimateParameters(lineSegments)
@@ -141,13 +140,11 @@ generateCluster <- function(lineSegments) {
     } 
   }
   
-  print(clusters)
-  
+  return(clusters)  
   # Generate representative trajectory
   # for (i in 1:length(clusters)) {
   #   generateRepresentativeTrajectory(lineSegments, clusters[[i]])
   # }
-  generateRepresentativeTrajectory(lineSegments, clusters[[1]], minLns)
 }
 
 generateRepresentativeTrajectory <- function(allLineSegments, cluster, minLns) {
@@ -172,31 +169,33 @@ generateRepresentativeTrajectory <- function(allLineSegments, cluster, minLns) {
   
   # Rotate linesegments so that X axis is parallel to average direction vector
   points <- data.frame()
+  rotatedLineSegments <- list()
   for (i in 1:length(lineSegments)) {
     rotatedLs <- rotateLineSegment(lineSegments[[i]], theta)
     points <- rbind(points, rotatedLs[,1])
     points <- rbind(points, rotatedLs[,2])
+    rotatedLineSegments[[length(rotatedLineSegments) + 1]] <- rotatedLs
   }
   colnames(points) <- c('X', 'Y', 'Z')
   
   # Sort the points in the set P by their X'-values
   points <- points[order(points$X),]
-  
   # Find representative trajectory
+  
   representativeTrajectory <- list()
   for (i in 1:nrow(points)) {
     point <- points[i,]
-    
     numP <- 0
     hittingLineSegments <- list()
-    for (j in 1:length(lineSegments)) {
-      if (lineSegments[[j]][1] <= point$X && lineSegments[[j]][4] >= point$X) {
+    for (j in 1:length(rotatedLineSegments)) {
+      if ((abs(rotatedLineSegments[[j]][1]) <= abs(point$X) && abs(point$X) <= abs(rotatedLineSegments[[j]][4]))
+        || (rotatedLineSegments[[j]][1]) <= point$X && point$X <= rotatedLineSegments[[j]][4]) {
         numP <- numP + 1
-        hittingLineSegments[[length(hittingLineSegments) + 1]] <- lineSegments[[j]]
+        hittingLineSegments[[length(hittingLineSegments) + 1]] <- rotatedLineSegments[[j]]
       }
     }
     
-    if (numP >= 1) {
+    if (numP >= 2) {
       if (i > 1) {
         diff <- abs(point$X - points[i - 1,]$X)
       } else {
@@ -204,20 +203,23 @@ generateRepresentativeTrajectory <- function(allLineSegments, cluster, minLns) {
       }
       if (diff >= GAMMA) {
         avgPP <- computeAverageCoordinate(point$X, hittingLineSegments)
-        avgP <- rotateVector(avgPP, -1 * theta)
+        avgP <- rotateVector(avgPP, -theta)
         representativeTrajectory[[length(representativeTrajectory) + 1]] <- avgP
-      }      
+      }
     }
   }
-  
+  print(representativeTrajectory)
   return(representativeTrajectory)
 }
 
 computeAverageCoordinate <- function(X, hittingLineSegments) {
-  avgPP <- c(0, 0, 0) 
+  totalY <- 0
+  totalZ <- 0
   for (i in 1:length(hittingLineSegments)) {
-    avgPP <- avgPP + findIntersectionBetweenPlaneAndLineSegment(
+     intersection <- findIntersectionBetweenPlaneAndLineSegment(
       c(X, 0, 0), c(1, 0, 0), hittingLineSegments[[i]][1:3], hittingLineSegments[[i]][4:6])
+     totalY <- totalY + intersection[2]
+     totalZ <- totalZ + intersection[3]
   }
-  return(avgPP)
+  return(c(X, totalY / length(hittingLineSegments), totalZ / length(hittingLineSegments)))
 }
